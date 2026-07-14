@@ -1,0 +1,24 @@
+{
+  "name": "base-bot",
+  "version": "2.0.0",
+  "description": "Base ecosystem expert X bot — RAG on docs.base.org + live on-chain analytics via Claude",
+  "type": "module",
+  "main": "src/bot.js",
+  "scripts": {
+    "start": "node --env-file=.env src/bot.js",
+    "dev": "node --env-file=.env --watch src/bot.js",
+    "test-mock": "node --env-file=.env test-mock.js",
+    "crawl": "node --env-file=.env src/crawler.js",
+    "crawl:full": "node --env-file=.env src/crawler.js --full",
+    "crawl:reset": "node --env-file=.env src/crawler.js --reset"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.55.0",
+    "@supabase/supabase-js": "^2.47.0",
+    "cheerio": "^1.0.0",
+    "twitter-api-v2": "^1.17.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
