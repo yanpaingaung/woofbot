@@ -1,3 +1,4 @@
+import http from "http";
 import { TwitterApi } from "twitter-api-v2";
 import { analyzeQuestion } from "./analyze.js";
 import { withRetry } from "./retry.js";
@@ -117,6 +118,40 @@ async function poll(client, rwClient) {
   await Promise.all(mentions.map((m) => processMention(rwClient, m)));
 }
 
+function startTestServer() {
+  const port = parseInt(process.env.PORT ?? "3000");
+  const server = http.createServer(async (req, res) => {
+    if (req.method === "GET" && req.url === "/health") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ status: "ok" }));
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/ask") {
+      let body = "";
+      req.on("data", (chunk) => { body += chunk; });
+      req.on("end", async () => {
+        try {
+          const { question } = JSON.parse(body);
+          if (!question) throw new Error("Missing 'question' field");
+          const reply = await analyzeQuestion(question);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ reply, length: reply.length }));
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
+      return;
+    }
+
+    res.writeHead(404);
+    res.end();
+  });
+
+  server.listen(port, () => console.log(`[test-server] listening on port ${port}`));
+}
+
 async function main() {
   if (!BOT_USER_ID) throw new Error("X_BOT_USER_ID env var is required");
 
@@ -125,6 +160,7 @@ async function main() {
 
   console.log(`[bot] base-bot v2 starting`);
   console.log(`[bot] DRY_RUN=${DRY_RUN} | poll=${POLL_INTERVAL_MS}ms | supabase=${USE_SUPABASE}`);
+  startTestServer();
 
   await poll(client, rwClient);
   setInterval(() => poll(client, rwClient), POLL_INTERVAL_MS);
