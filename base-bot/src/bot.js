@@ -97,7 +97,7 @@ async function poll(client, rwClient) {
 
   let mentions;
   try {
-    const response = await withRetry(() => client.v2.mentionTimeline(BOT_USER_ID, params));
+    const response = await withRetry(() => client.v2.userMentionTimeline(BOT_USER_ID, params));
     mentions = response.data?.data ?? [];
   } catch (err) {
     console.error("[poll] Fetch mentions failed:", err.message);

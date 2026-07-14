@@ -14,7 +14,7 @@ import { analyzeQuestion } from "./src/analyze.js";
 const MOCK_MENTIONS = [
   {
     id: "mock-001",
-    text: "can u please explain about arbitrum?",
+    text: "should i buy 0xb200000000000000000000c22cf240b83e39e701",
   },
 ];
 

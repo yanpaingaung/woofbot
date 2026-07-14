@@ -126,9 +126,25 @@ If you need to reference a source, use its name only. Examples:
 
 This rule overrides everything. Zero URLs in every response, no exceptions.
 
+DOMAIN AND DOT FORMATTING RULES (MANDATORY)
+
+Never place a period directly between two words.
+
+Do not write patterns like: word.word, name.com, docs.base, cb.id, claude.ai
+
+Instead, insert a space after the period or rewrite the text. Examples:
+- "dot.to" → "dot. to"
+- "claude.ai" → "Claude"
+- "cb.id" → "cb. id"
+- "docs.base.org" → "Base documentation"
+
+If a period would appear between two words, rewrite so no "word.word" pattern exists.
+
+This rule is mandatory for every response.
+
 TWEET FORMATTING
 
-- Output ONLY the reply tweet text. Hard limit: 1200 characters. Aim for 800–1100 characters whenever possible.
+- Output ONLY the reply tweet text. Hard limit: 900 characters. Aim for 700–900 characters.
 - NEVER use markdown tables. NEVER use | pipe characters for table formatting. NEVER use --- separators.
 - No **, no #, no bullet points, no numbered lists with indentation.
 - Prioritize data density over prose.
@@ -153,12 +169,66 @@ Abbreviate numbers ($1.2M, 450K). Fit as many entries as possible within the cha
 
 For address lists: shorten to first 6 + last 4 chars. Example: "0x1172…0CAf 4.03% · 0x301F…FB28 4.00%"
 
+TWITTER READABILITY RULES
+
+Write all analysis in short, scannable sections:
+
+- Separate each major insight with a blank line.
+- Each paragraph must contain only ONE key point.
+- Never combine multiple insights into one paragraph.
+- Keep each paragraph to a maximum of 2 sentences.
+- Use this order when applicable:
+  1. Warning (if any)
+  2. Key Metrics
+  3. Analysis
+  4. Risks
+  5. Verdict
+- Avoid walls of text even if the response is under the character limit.
+- Readability is more important than maximizing character usage.
+- If approaching the character limit, remove less important details instead of compressing everything into one block.
+
+PARAGRAPH RULES (MANDATORY)
+
+Each analysis point MUST be its own paragraph.
+
+Never combine two or more insights into the same paragraph.
+
+Insert one blank line after every paragraph.
+
+Example structure:
+Key Metrics
+
+Insight 1
+
+Insight 2
+
+Insight 3
+
+Risks
+
+Verdict
+
+This formatting rule is mandatory even if the response becomes shorter.
+
+FORMATTING RULES (MANDATORY)
+
+- Insert one empty blank line between every paragraph.
+- Never place two paragraphs directly next to each other.
+- Every new idea must start after a blank line.
+- Prioritize readability over compactness.
+
+PUNCTUATION RULES (MANDATORY)
+
+- Never use the em dash (—) anywhere in your response.
+- Replace it with a period, comma, or colon when appropriate.
+- Keep punctuation simple and easy to read.
+
 RESPONSE LENGTH RULES (CRITICAL)
 
 Your response will be posted directly to Twitter/X. You MUST follow these rules:
 
-- The final response MUST NEVER exceed 1,200 characters.
-- Aim for 800–1,100 characters whenever possible.
+- The final response MUST NEVER exceed 900 characters.
+- Aim for 700–900 characters.
 - Count your response before finishing.
 - If your draft exceeds 1,200 characters, rewrite and shorten it yourself before outputting.
 - Never rely on the application to truncate your response.
@@ -166,6 +236,11 @@ Your response will be posted directly to Twitter/X. You MUST follow these rules:
 - Prioritize the most important information and remove unnecessary details.
 - Be concise while preserving accuracy.
 - If the topic is too large to cover fully, provide the most important points and end naturally.
+- Never end the response because of the character limit.
+- If the response is too long, rewrite and shorten it until it fits within the limit.
+- Always deliver a complete response with a natural ending.
+- Never leave unfinished sections, incomplete lists, or cut-off sentences.
+- If necessary, omit less important details instead of truncating the response.
 
 SCAN-CARD FORMAT — when the question is just a contract address (0x...) with no other question:
 Call these in parallel: get_dex_token_pairs, get_holder_concentration, get_holder_count, get_wallet_age_stats, get_fresh_wallet_ratio. If a V4 pool ID is available also call get_buy_sell_ratio.
@@ -185,7 +260,7 @@ $SYMBOL/PAIR 🪙
 🤝 N holders · avg Nw recency
 🌱 Fresh 1D: X% · 7D: X%
 
-Abbreviate numbers: $1.2M, 450K, 3w. Total output ≤ 1200 chars.`;
+Abbreviate numbers: $1.2M, 450K, 3w. Total output ≤ 900 chars.`;
 
 // ─── MCP JSON-RPC client over HTTP ───────────────────────────────────────────
 class McpHttpClient {
@@ -310,6 +385,7 @@ function cleanTweet(text) {
   return text
     .trim()
     .replace(/\*\*(.+?)\*\*/g, "$1")       // **bold** → bold
+    .replace(/—/g, ":")                    // em dash → colon
     .replace(/#{1,6}\s+/g, "")             // ## headings
     .replace(/^\s*[-*]\s+/gm, "")          // bullet points
     .replace(/^\s*\d+\.\s+/gm, "")         // numbered lists
@@ -318,15 +394,18 @@ function cleanTweet(text) {
     .replace(/^\s*[-|][-| :]+\s*$/gm, "")  // markdown table separators
     .replace(/https?:\/\/\S+/g, "")        // strip http/https URLs
     .replace(/(?<!\w)(www\.\S+)/g, "")     // strip www. URLs
-    .replace(/(?<!\w)([a-z0-9-]+\.(org|com|io|xyz|fi|eth|app|dev|net)\S*)/gi, "") // strip bare domains
+    .replace(/(?<!\w)([a-z0-9-]+\.(org|com|io|xyz|fi|eth|app|dev|net|ai|id)\S*)/gi, "") // strip bare domains
+    .replace(/(\w)\.(\w)/g, "$1. $2")      // word.word → word. word
     .replace(/<tool_call>[\s\S]*?<\/tool_call>/g, "")     // strip XML tool calls
     .replace(/<tool_response>[\s\S]*?<\/tool_response>/g, "") // strip XML tool responses
     .replace(/^\s*\{[\s\S]*?\}\s*$/gm, "") // strip leaked JSON objects
     .replace(/^\s*\w+\s*\n\s*\{/gm, "{")  // strip tool name prefix before JSON
-    .replace(/\n{2,}/g, "\n")              // collapse blank lines to one newline
+    .replace(/\n{3,}/g, "\n\n")            // collapse 3+ newlines to one blank line, preserve paragraph spacing
     .replace(/[ \t]{2,}/g, " ")            // collapse horizontal whitespace only
     .trim()
-    .slice(0, 1200);
+    .slice(0, 900)
+    .replace(/[^.!?\n]*$/, "")  // trim trailing incomplete sentence
+    .trim();
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
