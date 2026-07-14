@@ -260,7 +260,7 @@ function buildServer() {
 
   server.tool(
     "get_dex_volume_overview",
-    "Get 24h and 7d DEX trading volume on Base, broken down by DEX (Uniswap, Aerodrome, Curve, etc.). Answers questions like 'which DEX has the most volume on Base?' or 'what is Base DEX volume today?'",
+    "ALWAYS use this tool for any question about DEX volume, top protocols by volume, top DEXes, trading volume rankings, or 24h/7d volume on Base. Returns live volume data from DeFiLlama grouped by protocol. Do NOT use web search for volume questions — this tool has the authoritative live data.",
     {},
     async () => {
       const result = await getDexVolumeOverview();

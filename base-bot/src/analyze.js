@@ -305,6 +305,8 @@ function cleanTweet(text) {
     .replace(/https?:\/\/\S+/g, "")        // strip http/https URLs
     .replace(/(?<!\w)(www\.\S+)/g, "")     // strip www. URLs
     .replace(/(?<!\w)([a-z0-9-]+\.(org|com|io|xyz|fi|eth|app|dev|net)\S*)/gi, "") // strip bare domains
+    .replace(/^\s*\{[\s\S]*?\}\s*$/gm, "") // strip leaked JSON objects
+    .replace(/^\s*\w+\s*\n\s*\{/gm, "{")  // strip tool name prefix before JSON
     .replace(/\n{2,}/g, "\n")              // collapse blank lines to one newline
     .replace(/[ \t]{2,}/g, " ")            // collapse horizontal whitespace only
     .trim()
