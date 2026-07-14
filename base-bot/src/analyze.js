@@ -290,6 +290,20 @@ async function connectMcp(url, label) {
   }
 }
 
+// Persistent MCP connections — connect once at startup, reuse for all requests
+const _mcpCache = new Map(); // url → { mcp, tools }
+
+async function getOrConnectMcp(url, label) {
+  if (_mcpCache.has(url)) return _mcpCache.get(url);
+  const result = await connectMcp(url, label);
+  if (result.mcp) _mcpCache.set(url, result);
+  return result;
+}
+
+function invalidateMcp(url) {
+  _mcpCache.delete(url);
+}
+
 // Strip markdown formatting and enforce 1200-char hard limit.
 // Preserves single newlines so scan-card line breaks stay intact.
 function cleanTweet(text) {
@@ -305,6 +319,8 @@ function cleanTweet(text) {
     .replace(/https?:\/\/\S+/g, "")        // strip http/https URLs
     .replace(/(?<!\w)(www\.\S+)/g, "")     // strip www. URLs
     .replace(/(?<!\w)([a-z0-9-]+\.(org|com|io|xyz|fi|eth|app|dev|net)\S*)/gi, "") // strip bare domains
+    .replace(/<tool_call>[\s\S]*?<\/tool_call>/g, "")     // strip XML tool calls
+    .replace(/<tool_response>[\s\S]*?<\/tool_response>/g, "") // strip XML tool responses
     .replace(/^\s*\{[\s\S]*?\}\s*$/gm, "") // strip leaked JSON objects
     .replace(/^\s*\w+\s*\n\s*\{/gm, "{")  // strip tool name prefix before JSON
     .replace(/\n{2,}/g, "\n")              // collapse blank lines to one newline
@@ -319,11 +335,11 @@ export async function analyzeQuestion(question) {
   const analyticsUrl = process.env.BASE_ANALYTICS_MCP_URL;
   if (!analyticsUrl) throw new Error("BASE_ANALYTICS_MCP_URL env var is required");
 
-  // Parallel: load both MCP servers + search docs
+  // Parallel: get persistent MCP connections + search docs
   const [analyticsResult, baseMcpResult, docChunks] = await Promise.all([
-    connectMcp(analyticsUrl, "analytics"),
+    getOrConnectMcp(analyticsUrl, "analytics"),
     process.env.BASE_MCP_URL
-      ? connectMcp(process.env.BASE_MCP_URL, "base")
+      ? getOrConnectMcp(process.env.BASE_MCP_URL, "base")
       : Promise.resolve({ mcp: null, tools: [] }),
     searchDocs(question, 5).catch((err) => {
       console.warn(`[docs] ${err.message}`);
@@ -386,6 +402,8 @@ export async function analyzeQuestion(question) {
               const raw = await mcpClient.callTool(block.name, block.input);
               content = raw?.content?.[0]?.text ?? JSON.stringify(raw, null, 2);
             } catch (err) {
+              invalidateMcp(analyticsUrl);
+              if (process.env.BASE_MCP_URL) invalidateMcp(process.env.BASE_MCP_URL);
               content = `Error: ${err.message}`;
             }
             return { type: "tool_result", tool_use_id: block.id, content };
