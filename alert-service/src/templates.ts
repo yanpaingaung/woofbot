@@ -83,18 +83,20 @@ export function coordinatedWalletsTweet(opts: {
   walletLabels: string[];
   tokenSymbol: string;
   totalAmountUsd: number;
+  tokenAddress?: string;
 }): string {
   const shown = opts.walletLabels.slice(0, 3).join(', ');
   const extra = opts.walletLabels.length > 3 ? ` +${opts.walletLabels.length - 3}` : '';
-  return [
+  const lines = [
     `🚨 COORDINATED BUY | Base`,
     ``,
     `${opts.walletAddresses.length} tracked wallets bought $${opts.tokenSymbol}`,
     `Wallets: ${shown}${extra}`,
     `Combined: ${fmtUsd(opts.totalAmountUsd)}`,
-    ``,
-    `#Base #SmartMoney #Coordinated`,
-  ].join('\n');
+  ];
+  if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
+  lines.push(``, `#Base #SmartMoney #Coordinated`);
+  return lines.join('\n');
 }
 
 export function newTokenTweet(opts: {
@@ -131,6 +133,7 @@ export function largeEarlyBuyTweet(opts: {
   amountUsd: number;
   liquidityUsd: number;
   pctOfLiquidity: number;
+  tokenAddress?: string;
 }): string {
   const lines = [
     `⚡ LARGE EARLY BUY | Base`,
@@ -138,6 +141,7 @@ export function largeEarlyBuyTweet(opts: {
     `$${opts.tokenSymbol}: ${fmtUsd(opts.amountUsd)} (${opts.pctOfLiquidity.toFixed(0)}% of liq)`,
   ];
   if (opts.buyerAddress) lines.push(`Buyer: ${shortAddr(opts.buyerAddress)}`);
+  if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
   lines.push(`Pool Liq: ${fmtUsd(opts.liquidityUsd)}`, ``, `#Base #EarlyBuy #DeFi`);
   return lines.join('\n');
 }
@@ -149,15 +153,17 @@ export function holderGrowthTweet(opts: {
   prevHolderCount: number;
   growthPct: number;
   liquidityUsd: number;
+  tokenAddress?: string;
 }): string {
-  return [
+  const lines = [
     `📈 HOLDER GROWTH | Base`,
     ``,
     `$${opts.tokenSymbol} (${opts.tokenName})`,
     `Holders: ${opts.prevHolderCount} → ${opts.holderCount} (+${opts.growthPct.toFixed(0)}%)`,
     `Pool Liq: ${fmtUsd(opts.liquidityUsd)}`,
-    ``,
-    `#Base #DeFi #NewToken`,
-  ].join('\n');
+  ];
+  if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
+  lines.push(``, `#Base #DeFi #NewToken`);
+  return lines.join('\n');
 }
 

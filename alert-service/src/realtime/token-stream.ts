@@ -201,6 +201,7 @@ async function checkPool(watched: WatchedPool): Promise<void> {
           amountUsd: volumeM5,
           liquidityUsd,
           pctOfLiquidity: pct,
+          tokenAddress: watched.tokenAddress,
         });
         await markSeen(earlyKey);
         const tweetId = await postTweet(text);

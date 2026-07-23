@@ -112,6 +112,7 @@ async function onTransfer(
           walletLabels: labels,
           tokenSymbol,
           totalAmountUsd: amountUsd,
+          tokenAddress: tokenAddr,
         });
         await markSeen(coordKey);
         const coordId = await postTweet(coordText);
