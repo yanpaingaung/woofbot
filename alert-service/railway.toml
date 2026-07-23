@@ -1,0 +1,6 @@
+[deploy]
+startCommand = "npm run start"
+restartPolicyType = "always"
+
+[build]
+buildCommand = "npm install && npm run build"
