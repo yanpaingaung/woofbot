@@ -9,6 +9,7 @@ const DRY_RUN = (process.env.DRY_RUN ?? "true").toLowerCase() !== "false";
 const POLL_INTERVAL_MS = parseInt(process.env.POLL_INTERVAL_MS ?? String(5 * 60 * 1000));
 const BOT_USER_ID = process.env.X_BOT_USER_ID;
 const USE_SUPABASE = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY);
+const RATE_LIMIT_BYPASS = new Set((process.env.RATE_LIMIT_BYPASS ?? "").split(",").map(s => s.trim()).filter(Boolean));
 
 function buildClient() {
   return new TwitterApi({
@@ -46,7 +47,7 @@ async function processMention(rwClient, mention) {
   console.log(`[mention] ${mention.id} @${authorId}: "${question}"`);
 
   // Per-user daily rate limit (only enforced when Supabase is configured)
-  if (USE_SUPABASE) {
+  if (USE_SUPABASE && !RATE_LIMIT_BYPASS.has(authorId)) {
     try {
       const allowed = await checkRateLimit(authorId);
       if (!allowed) {

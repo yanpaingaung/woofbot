@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-const DAILY_RATE_LIMIT = parseInt(process.env.DAILY_RATE_LIMIT ?? "20");
+const DAILY_RATE_LIMIT = parseInt(process.env.DAILY_RATE_LIMIT ?? "7");
 const CACHE_TTL_SECONDS = parseInt(process.env.CACHE_TTL_SECONDS ?? "300");
 
 let _client = null;
