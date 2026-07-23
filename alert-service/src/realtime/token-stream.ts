@@ -26,7 +26,7 @@ const UNISWAP_V4_POOL_MANAGER = '0x498581ff718922c3f8e6a244956af099b2652b2b'; //
 // In V4, native ETH is address(0), not WETH
 const ETH_ZERO = '0x0000000000000000000000000000000000000000';
 
-const MAX_WATCH_MS = 6 * 60 * 60 * 1000;
+const MAX_WATCH_MS = 24 * 60 * 60 * 1000;
 const VOLUME_POLL_MS = 2 * 60 * 1000; // check DexScreener every 2 min
 const EARLY_BUY_PCT = 5;
 const EARLY_BUY_MIN_USD = 1_000;
