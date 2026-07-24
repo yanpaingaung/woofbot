@@ -179,6 +179,7 @@ async function checkPool(watched: WatchedPool): Promise<void> {
       liquidityUsd,
       totalBuyUsd: volumeH6,
       poolAgeMin: ageMin,
+      mcapUsd: pair.marketCap ?? undefined,
       tokenAddress: watched.tokenAddress,
     });
     await markSeen(newKey);
@@ -201,6 +202,7 @@ async function checkPool(watched: WatchedPool): Promise<void> {
           amountUsd: volumeM5,
           liquidityUsd,
           pctOfLiquidity: pct,
+          mcapUsd: pair.marketCap ?? undefined,
           tokenAddress: watched.tokenAddress,
         });
         await markSeen(earlyKey);

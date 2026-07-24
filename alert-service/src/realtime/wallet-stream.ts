@@ -86,6 +86,7 @@ async function onTransfer(
     tokenSymbol,
     amountUsd,
     price: priceUsd,
+    mcapUsd: bestPair.marketCap ?? undefined,
     tokenAddress: tokenAddr,
   });
 
@@ -112,6 +113,7 @@ async function onTransfer(
           walletLabels: labels,
           tokenSymbol,
           totalAmountUsd: amountUsd,
+          mcapUsd: bestPair.marketCap ?? undefined,
           tokenAddress: tokenAddr,
         });
         await markSeen(coordKey);

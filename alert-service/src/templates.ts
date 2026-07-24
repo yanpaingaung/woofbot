@@ -31,6 +31,7 @@ export function whaleAlertTweet(opts: {
   price: number;
   poolName: string;
   dexId: string;
+  mcapUsd?: number;
   buyerAddress?: string;
   tokenAddress?: string;
 }): string {
@@ -41,8 +42,9 @@ export function whaleAlertTweet(opts: {
     `${emoji} ${opts.kind.toUpperCase()} $${opts.tokenSymbol} • ${fmtUsd(opts.amountUsd)}`,
     `Pool: ${opts.poolName}`,
     `Price: $${fmtPrice(opts.price)}`,
-    `DEX: ${opts.dexId}`,
   ];
+  if (opts.mcapUsd) lines.push(`MCap: ${fmtUsd(opts.mcapUsd)}`);
+  lines.push(`DEX: ${opts.dexId}`);
   if (opts.buyerAddress) lines.push(`Buyer: ${shortAddr(opts.buyerAddress)}`);
   if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
   lines.push(``, `#Base #DeFi #WhaleAlert`);
@@ -56,6 +58,7 @@ export function walletAlertTweet(opts: {
   tokenSymbol: string;
   amountUsd: number;
   price: number;
+  mcapUsd?: number;
   tokenAddress?: string;
 }): string {
   const actions: Record<string, string> = {
@@ -73,6 +76,7 @@ export function walletAlertTweet(opts: {
     `Amount: ${fmtUsd(opts.amountUsd)}`,
     `Price: $${fmtPrice(opts.price)}`,
   ];
+  if (opts.mcapUsd) lines.push(`MCap: ${fmtUsd(opts.mcapUsd)}`);
   if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
   lines.push(``, `#Base #SmartMoney`);
   return lines.join('\n');
@@ -83,6 +87,7 @@ export function coordinatedWalletsTweet(opts: {
   walletLabels: string[];
   tokenSymbol: string;
   totalAmountUsd: number;
+  mcapUsd?: number;
   tokenAddress?: string;
 }): string {
   const shown = opts.walletLabels.slice(0, 3).join(', ');
@@ -94,6 +99,7 @@ export function coordinatedWalletsTweet(opts: {
     `Wallets: ${shown}${extra}`,
     `Combined: ${fmtUsd(opts.totalAmountUsd)}`,
   ];
+  if (opts.mcapUsd) lines.push(`MCap: ${fmtUsd(opts.mcapUsd)}`);
   if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
   lines.push(``, `#Base #SmartMoney #Coordinated`);
   return lines.join('\n');
@@ -106,6 +112,7 @@ export function newTokenTweet(opts: {
   liquidityUsd: number;
   totalBuyUsd: number;
   poolAgeMin?: number;
+  mcapUsd?: number;
   tokenAddress?: string;
 }): string {
   const age =
@@ -120,8 +127,9 @@ export function newTokenTweet(opts: {
     `Deployed: ${age}`,
     `Total Buys: ${fmtUsd(opts.totalBuyUsd)}`,
     `Liquidity: ${fmtUsd(opts.liquidityUsd)}`,
-    `DEX: ${opts.dexId}`,
   ];
+  if (opts.mcapUsd) lines.push(`MCap: ${fmtUsd(opts.mcapUsd)}`);
+  lines.push(`DEX: ${opts.dexId}`);
   if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
   lines.push(``, `#Base #NewToken #DeFi`);
   return lines.join('\n');
@@ -133,6 +141,7 @@ export function largeEarlyBuyTweet(opts: {
   amountUsd: number;
   liquidityUsd: number;
   pctOfLiquidity: number;
+  mcapUsd?: number;
   tokenAddress?: string;
 }): string {
   const lines = [
@@ -141,6 +150,7 @@ export function largeEarlyBuyTweet(opts: {
     `$${opts.tokenSymbol}: ${fmtUsd(opts.amountUsd)} (${opts.pctOfLiquidity.toFixed(0)}% of liq)`,
   ];
   if (opts.buyerAddress) lines.push(`Buyer: ${shortAddr(opts.buyerAddress)}`);
+  if (opts.mcapUsd) lines.push(`MCap: ${fmtUsd(opts.mcapUsd)}`);
   if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
   lines.push(`Pool Liq: ${fmtUsd(opts.liquidityUsd)}`, ``, `#Base #EarlyBuy #DeFi`);
   return lines.join('\n');
@@ -153,6 +163,7 @@ export function holderGrowthTweet(opts: {
   prevHolderCount: number;
   growthPct: number;
   liquidityUsd: number;
+  mcapUsd?: number;
   tokenAddress?: string;
 }): string {
   const lines = [
@@ -162,6 +173,7 @@ export function holderGrowthTweet(opts: {
     `Holders: ${opts.prevHolderCount} → ${opts.holderCount} (+${opts.growthPct.toFixed(0)}%)`,
     `Pool Liq: ${fmtUsd(opts.liquidityUsd)}`,
   ];
+  if (opts.mcapUsd) lines.push(`MCap: ${fmtUsd(opts.mcapUsd)}`);
   if (opts.tokenAddress) lines.push(`CA: ${opts.tokenAddress}`);
   lines.push(``, `#Base #DeFi #NewToken`);
   return lines.join('\n');
